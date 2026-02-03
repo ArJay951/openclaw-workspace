@@ -28,4 +28,8 @@ Thumbs.db
 # 临时文件
 *.tmp
 *.bak
+
+# Mall 项目（独立 repo 管理）
 mall/
+mall-admin-web/
+mall-app-web/

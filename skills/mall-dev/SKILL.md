@@ -17,7 +17,9 @@ description: 隆亨精品商城二开项目开发助手。用于：(1) 查询项
 
 ## 项目路径
 
-- **代码库:** `/home/ubuntu/.openclaw/workspace/mall/`
+- **后端:** `/home/ubuntu/.openclaw/workspace/mall/`
+- **前端后台:** `/home/ubuntu/.openclaw/workspace/mall-admin-web/`
+- **前端商城:** `/home/ubuntu/.openclaw/workspace/mall-app-web/`
 - **规划文档:** `mall/docs/PROJECT_PLAN.md`
 - **项目上下文:** 读取 `references/project-context.md`
 - **API 规格:** 读取 `references/api-spec.md`
@@ -25,17 +27,21 @@ description: 隆亨精品商城二开项目开发助手。用于：(1) 查询项
 ## 常用命令
 
 ```bash
+# === 后端 ===
 # 编译（跳过测试）
 cd /home/ubuntu/.openclaw/workspace/mall && mvn clean install -DskipTests
 
-# 运行 admin 模块
+# 运行 admin API
 cd /home/ubuntu/.openclaw/workspace/mall/mall-admin && mvn spring-boot:run
 
-# 运行 portal 模块  
+# 运行 portal API
 cd /home/ubuntu/.openclaw/workspace/mall/mall-portal && mvn spring-boot:run
 
-# 检查项目结构
-tree -L 2 /home/ubuntu/.openclaw/workspace/mall
+# === 前端后台 ===
+cd /home/ubuntu/.openclaw/workspace/mall-admin-web && npm install && npm run dev
+
+# === 前端商城 ===
+cd /home/ubuntu/.openclaw/workspace/mall-app-web && npm install && npm run dev
 ```
 
 ## 进度同步

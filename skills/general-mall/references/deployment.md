@@ -2,13 +2,13 @@
 
 ## 測試環境
 
-| 項目 | 值 |
-|------|-----|
-| 伺服器 IP | 52.76.231.27 |
-| 網域 | dev.homely-go.com |
+| 項目 | 值                                |
+|------|----------------------------------|
+| 伺服器 IP | 52.76.231.27                     |
+| 網域 | dev.homely-go.com                |
 | 後台 | https://dev.homely-go.com/admin/ |
-| 前台 | https://dev.homely-go.com/web/ |
-| 登入帳號 | admin / macro123 |
+| 前台 | https://dev.homely-go.com/web/   |
+| 登入帳號 | admin / homelygo5566             |
 
 ## 部署腳本
 

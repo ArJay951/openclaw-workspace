@@ -113,12 +113,9 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 - [需求邊界](references/requirements.md)
 - [環境規格](references/environment.md)
-- [費用評估](references/cost.md)
 - [自動產生訂單 API](references/auto-order-api.md)
 - [待開發功能](references/pending-features.md)
 - [部署指南](references/deployment.md) ⭐ 新增
-- [命名規範](references/naming-conventions.md) ⭐ 新增
-- [人力評估](人力評估.md)
 
 ## 源碼倉庫
 

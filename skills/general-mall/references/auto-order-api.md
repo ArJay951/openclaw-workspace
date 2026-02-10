@@ -30,6 +30,20 @@ POST /api/order/auto-generate
 | amount | number | ✅ | 訂單金額 |
 | name | string | ✅ | 收件人/退貨人姓名 |
 | phone | string | ✅ | 手機號碼 |
+| source | string | | 來源標識（自訂） |
+| sourceDomain | string | | 來源網域（優先使用此值，否則自動從請求頭取得） |
+
+### 來源網域自動偵測
+
+系統會自動從 HTTP 請求頭取得來源網域，優先順序：
+
+1. **請求參數** `sourceDomain` - 優先級最高
+2. **Origin 標頭** - 跨域請求的來源
+3. **Referer 標頭** - 請求來源頁面
+4. **X-Forwarded-Host** - 反向代理轉發的主機名
+5. **Remote Host** - 請求端 IP/主機名
+
+來源網域會記錄在 `oms_order.source_domain` 欄位。
 
 ---
 
@@ -133,6 +147,15 @@ POST /api/order/auto-generate
 ---
 
 ## 資料庫擴展
+
+### 訂單表新增欄位
+
+```sql
+-- 來源網域欄位
+ALTER TABLE oms_order ADD COLUMN source_domain VARCHAR(200) NULL COMMENT '來源網域' AFTER source_type;
+```
+
+### 自動訂單記錄表（可選）
 
 ```sql
 -- 自動訂單記錄表

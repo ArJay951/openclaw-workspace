@@ -9,6 +9,48 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 一般電商平台，基於 mall 完整功能，支援多套獨立部署。
 
+## 🔤 語言規範
+
+**本專案使用繁體中文**
+
+- 程式碼註解、訊息、UI 文字一律使用繁體中文
+- 若阿杰輸入簡體中文，執行時自動轉換為繁體
+- 資料庫初始資料已轉換為繁體 (`/home/ubuntu/general-mall/document/sql/mall.sql`)
+
+## ⚠️ 開發流程
+
+**新增需求時，必須先確認再開發：**
+
+1. **記錄需求** → 寫入 `references/requirements.md`
+2. **確認需求** → 與阿杰確認理解是否正確
+3. **開發實作** → 確認後才開始寫程式
+4. **測試驗證** → 完成後回報結果
+
+❌ 禁止：收到需求直接開發
+✅ 正確：先確認、再開發
+
+## 📋 新增頁面檢查清單
+
+新增後台頁面時，必須完成以下步驟：
+
+1. **後端**
+   - [ ] Controller + Service + Mapper
+   - [ ] 資料庫表（如需要）
+
+2. **前端**
+   - [ ] API 檔案 (`src/api/xxx.js`)
+   - [ ] 頁面元件 (`src/views/xxx/index.vue`)
+   - [ ] 路由配置 (`src/router/index.js`)
+   - [ ] 重新構建 (`npm run build`)
+
+3. **權限設定**（⚠️ 必須）
+   - [ ] `ums_menu` - 新增菜單
+   - [ ] `ums_role_menu_relation` - 給超級管理員(id=5)添加菜單權限
+   - [ ] `ums_resource` - 新增 API 資源
+   - [ ] `ums_role_resource_relation` - 給超級管理員添加資源權限
+   - [ ] 清除 Redis 緩存 (`docker exec mall-redis redis-cli FLUSHALL`)
+   - [ ] 重啟 mall-admin
+
 ## 技術架構
 
 ### 後端
@@ -40,6 +82,20 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 詳見：[自動產生訂單 API](references/auto-order-api.md)
 
+### 待開發功能：代付訂單 → 退款申請
+
+**狀態**: 🟡 待確認需求
+
+代付訂單建立後，自動產生 `oms_order_return_apply` 記錄，供後台審核出款。
+
+**待確認項目**：
+1. Return Apply 記錄內容（總金額 or 拆分商品）
+2. 商品分配邏輯（貪婪法？）
+3. 狀態流程（0=待審核 → ?）
+4. 與代收訂單的關聯方式
+
+詳見：[待開發功能](references/pending-features.md)
+
 ## 多租戶配置
 
 每套商城可獨立配置：
@@ -59,7 +115,56 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 - [環境規格](references/environment.md)
 - [費用評估](references/cost.md)
 - [自動產生訂單 API](references/auto-order-api.md)
+- [待開發功能](references/pending-features.md)
+- [部署指南](references/deployment.md) ⭐ 新增
+- [命名規範](references/naming-conventions.md) ⭐ 新增
+- [人力評估](人力評估.md)
 
-## 源碼位置
+## 源碼倉庫
 
-- mall 源碼: `/home/ubuntu/mall-source`
+| 倉庫 | 說明 | GitHub |
+|------|------|--------|
+| mall-backend | 後端 Java | https://github.com/ArJay951/mall-backend |
+| mall-admin-web | 後台前端 | https://github.com/ArJay951/mall-admin-web |
+| mall-app-web | 前台 H5 | https://github.com/ArJay951/mall-app-web |
+| mall-deploy | 部署配置 | https://github.com/ArJay951/mall-deploy |
+
+### 本機路徑
+- 專案目錄: `/home/ubuntu/general-mall/`
+- 後端源碼: `/home/ubuntu/general-mall/mall/`
+- 後台前端: `/home/ubuntu/mall-admin-web/`
+- 前台前端: `/home/ubuntu/mall-app-build/`
+
+## 測試環境
+
+| 項目 | 值 |
+|------|-----|
+| 伺服器 IP | 52.76.231.27 |
+| 網域 | dev.homely-go.com |
+| 後台 | https://dev.homely-go.com/admin/ |
+| 前台 | https://dev.homely-go.com/web/ |
+| 登入帳號 | admin / macro123 |
+| SSL | CDN 代理模式 |
+
+### 服務端口
+| 服務 | 端口 |
+|------|------|
+| MySQL | 3306 |
+| Redis | 6379 |
+| RabbitMQ | 5672/15672 |
+| Elasticsearch | 9200 |
+| mall-admin | 8080 |
+| mall-portal | 8085 |
+| Nginx | 80 |
+
+### 快速指令
+```bash
+# 部署腳本
+bash /home/ubuntu/general-mall/deploy.sh [backend|admin|web|all|db|env]
+
+# 健康檢查
+bash /home/ubuntu/general-mall/health_check.sh
+
+# 服務管理
+cd /home/ubuntu/general-mall && docker compose ps
+```

@@ -1,6 +1,6 @@
 ---
 name: entertainment-mall
-description: 娱乐城积分兑换商城系统开发指南。基于 macrozheng/mall 框架，对接娱乐城平台 API，支持多套独立部署。用于：(1) 商城系统开发与维护 (2) 功能需求讨论 (3) 部署与配置 (4) 娱乐城 API 对接
+description: 娛樂城積分兌換商城系統開發指南。基於 macrozheng/mall 框架，對接娛樂城平台 API，支援多套獨立部署。用於：(1) 商城系統開發與維護 (2) 功能需求討論 (3) 部署與配置 (4) 娛樂城 API 對接
 ---
 
 # 娛樂城商城系統 (Entertainment Mall)
@@ -119,7 +119,7 @@ description: 娱乐城积分兑换商城系统开发指南。基于 macrozheng/m
 
 娛樂城商城開發需要對方提供 API 文檔後才能進行。
 
-## 源码倉庫
+## 源碼倉庫
 
 > ⚠️ 娛樂城商城尚未開始開發，開發時將基於 general-mall 源碼進行改造。
 

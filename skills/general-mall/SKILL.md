@@ -76,9 +76,20 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 - 權限管理
 - Elasticsearch 搜尋
 
-### 新增功能：自動產生訂單 API
+### 新增功能：自動產生訂單 API ✅
 
 提供 API 讓下游系統傳入金額，自動組合商品產生訂單。
+
+**API 端點：** `POST /portal/order/auto-generate`
+
+**功能特點：**
+- 代收（collect）：產生購買訂單
+- 代付（pay）：產生退貨訂單
+- 向上湊算法：商品總價 ≥ 傳入金額
+- **訂單金額 = 傳入金額**（固定）
+- IP 白名單驗證
+
+**測試金額範圍：** 3,000 ~ 100,000（全部通過）
 
 詳見：[自動產生訂單 API](references/auto-order-api.md)
 

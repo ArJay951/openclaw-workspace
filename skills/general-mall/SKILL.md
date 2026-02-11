@@ -90,14 +90,15 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 - **訂單金額 = 傳入金額**（固定）
 - IP 白名單驗證
 
-**訂單規則：**
+**訂單規則：** （通用，適用所有商城）
 - ✅ 商品多樣性（至少 3 種以上）
 - ✅ 每商品每輪 7~12 件限制
-- ✅ 折扣 ≤ 最低價商品（20 元）
+- ✅ 折扣 ≤ 最低價商品
+- ✅ Redis 緩存（TTL 10 分鐘）
 
 詳見：
 - [自動產生訂單 API](references/auto-order-api.md)
-- [訂單創建規則](references/order-rules.md)
+- [📋 訂單創建規則（通用）](references/order-rules.md)
 
 ### 待開發功能：代付訂單 → 退款申請
 

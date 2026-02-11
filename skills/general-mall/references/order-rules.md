@@ -1,5 +1,7 @@
 # 自動訂單創建規則
 
+> 通用規則，適用於所有商城系統（General Mall / Entertainment Mall）
+
 ## 核心規則
 
 ### 1. 商品多樣性
@@ -22,25 +24,33 @@
 ## 算法流程
 
 ```
-1. 取得所有上架商品
+輸入: targetAmount（目標金額）
+
+1. 取得所有上架商品（從緩存或數據庫）
 2. 計算最低價商品價格 (minPrice)
-3. 驗證目標金額 >= minPrice
+3. 驗證 targetAmount >= minPrice
 
 4. 多輪選擇:
-   while (商品總價 < 目標金額) {
+   maxSubtotal = targetAmount + minPrice  // 折扣上限
+   
+   while (subtotal < targetAmount) {
+     shuffle(products)  // 每輪打亂順序
+     
      for (每個商品) {
-       本輪數量 = random(7, 12)
+       qtyThisRound = random(7, 12)
+       
+       // 檢查折扣限制
+       if (subtotal + qty*price > maxSubtotal) {
+         調整數量
+       }
+       
        添加到訂單
      }
    }
 
-5. 驗證折扣:
-   折扣 = 商品總價 - 目標金額
-   if (折扣 > minPrice) {
-     調整商品組合，減少折扣
-   }
+5. 創建訂單記錄
 
-6. 創建訂單
+輸出: 訂單號、商品明細、折扣金額
 ```
 
 ---
@@ -52,7 +62,6 @@
 | total_amount | 商品合計 | 商品總價 (subtotal) |
 | pay_amount | 訂單總金額 | 商品總價 (subtotal) |
 | discount_amount | 折扣金額 | 商品總價 - 目標金額 |
-| **應付款金額** | 後台顯示 | pay_amount - discount_amount |
 
 **後台計算公式：**
 ```
@@ -61,48 +70,12 @@
 
 ---
 
-## 範例
+## 訂單狀態
 
-### 目標金額 1000 元
-
-| 商品 | 單價 | 數量 | 小計 |
-|------|------|------|------|
-| 商品 A | 65 | 8 | 520 |
-| 商品 B | 65 | 8 | 520 |
-| **合計** | | | **1040** |
-| **折扣** | | | **40** |
-| **應付** | | | **1000** |
-
-✅ 符合規則：
-- 2 種商品（多樣性）
-- 每種 8 件（7~12 範圍內）
-- 折扣 40 元 < 最低價 65 元
-
----
-
-## 錯誤處理
-
-| 情況 | 處理 |
-|------|------|
-| 金額 < 最低價商品 | 返回錯誤 `AMOUNT_TOO_LOW` |
-| 無上架商品 | 返回錯誤 `NO_PRODUCTS` |
-| 商品不足以湊到目標 | 返回錯誤 `INSUFFICIENT_PRODUCTS` |
-| 折扣超過限制 | 調整商品組合 |
-
----
-
-## 代碼位置
-
-```
-mall-portal/src/main/java/com/macro/mall/portal/service/impl/AutoOrderServiceImpl.java
-```
-
-### 關鍵常量
-```java
-// 每輪每商品最多數量
-private static final int MIN_QTY_PER_ROUND = 7;
-private static final int MAX_QTY_PER_ROUND = 12;
-```
+| 類型 | 狀態 | status |
+|------|------|--------|
+| 代收 | 已支付（待發貨） | 1 |
+| 代付 | 無效訂單（待退款） | 5 |
 
 ---
 
@@ -114,23 +87,68 @@ private static final int MAX_QTY_PER_ROUND = 12;
 |------|-----|
 | Key | `auto_order:products` |
 | TTL | 600 秒（10 分鐘） |
-| 配置項 | `auto-order.cache.expire` |
+
+### 緩存策略
+- 首次請求：查詢數據庫 → 存入 Redis
+- 後續請求：直接從 Redis 獲取
+- 10 分鐘後自動過期
+- 產品更新時可手動清除
 
 ### 清除緩存
+```bash
+# Redis 命令
+docker exec mall-redis redis-cli DEL auto_order:products
 
-產品更新時可調用：
-```java
+# 或調用 API
 autoOrderService.clearProductCache();
 ```
 
-或直接用 Redis 命令：
-```bash
-docker exec mall-redis redis-cli DEL auto_order:products
+---
+
+## 代碼常量
+
+```java
+// 每輪每商品最多數量
+private static final int MIN_QTY_PER_ROUND = 7;
+private static final int MAX_QTY_PER_ROUND = 12;
+
+// 緩存過期時間（秒）
+private static final long CACHE_EXPIRE_SECONDS = 600;
+
+// Redis Key
+private static final String REDIS_KEY_PRODUCTS = "auto_order:products";
 ```
+
+---
+
+## 錯誤處理
+
+| 錯誤碼 | 說明 |
+|--------|------|
+| AMOUNT_TOO_LOW | 金額 < 最低價商品 |
+| NO_PRODUCTS | 無上架商品 |
+| INSUFFICIENT_PRODUCTS | 商品不足以湊到目標金額 |
+
+---
+
+## 測試驗證
+
+新功能上線前，需驗證以下測試案例：
+
+| 金額 | 預期結果 |
+|------|----------|
+| 1,000 | 3+ 種商品，折扣 ≤ 20 |
+| 10,000 | 多種商品，數量 7~12 |
+| 50,000 | 26 種商品，數量均勻分布 |
+| 100,000 | 所有商品，多輪累積 |
 
 ---
 
 ## 更新日誌
 
-- **2026-02-11**: 新增 Redis 緩存（TTL 10 分鐘）
-- **2026-02-11**: 建立規則文檔
+| 日期 | 變更 |
+|------|------|
+| 2026-02-11 | 簡化緩存配置為 static 常量 |
+| 2026-02-11 | 新增 Redis 緩存（TTL 10 分鐘） |
+| 2026-02-11 | 新增折扣限制（≤ 最低價商品） |
+| 2026-02-11 | 建立通用規則文檔 |

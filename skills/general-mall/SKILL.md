@@ -80,18 +80,24 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 提供 API 讓下游系統傳入金額，自動組合商品產生訂單。
 
-**API 端點：** `POST /portal/order/auto-generate`
+**API 端點：**
+- 代收: `POST /portal/order/auto-generate/collect`
+- 代付: `POST /portal/order/auto-generate/pay`
 
 **功能特點：**
-- 代收（collect）：產生購買訂單
+- 代收（collect）：產生購買訂單（已支付狀態）
 - 代付（pay）：產生退貨訂單
-- 向上湊算法：商品總價 ≥ 傳入金額
 - **訂單金額 = 傳入金額**（固定）
 - IP 白名單驗證
 
-**測試金額範圍：** 3,000 ~ 100,000（全部通過）
+**訂單規則：**
+- ✅ 商品多樣性（至少 3 種以上）
+- ✅ 每商品每輪 7~12 件限制
+- ✅ 折扣 ≤ 最低價商品（20 元）
 
-詳見：[自動產生訂單 API](references/auto-order-api.md)
+詳見：
+- [自動產生訂單 API](references/auto-order-api.md)
+- [訂單創建規則](references/order-rules.md)
 
 ### 待開發功能：代付訂單 → 退款申請
 

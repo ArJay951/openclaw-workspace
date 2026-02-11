@@ -124,19 +124,24 @@ description: 娛樂城積分兌換商城系統開發指南。基於 macrozheng/m
 
 ## 源碼倉庫
 
-> ⚠️ 娛樂城商城尚未開始開發，開發時將基於 general-mall 源碼進行改造。
-
-### 基礎源碼（general-mall）
+### 娛樂城商城 Repos
 | 倉庫 | 說明 | GitHub |
 |------|------|--------|
-| mall-backend | 後端 Java | https://github.com/ArJay951/mall-backend |
-| mall-admin-web | 後台前端 | https://github.com/ArJay951/mall-admin-web |
-| mall-app-web | 前台 H5 | https://github.com/ArJay951/mall-app-web |
-| mall-deploy | 部署配置 | https://github.com/ArJay951/mall-deploy |
+| ent-mall-backend | 後端 Java | https://github.com/ArJay951/ent-mall-backend |
+| ent-mall-admin-web | 後台前端 | https://github.com/ArJay951/ent-mall-admin-web |
 
 ### 本機路徑
-- 原始 mall 源碼: `/home/ubuntu/mall-source`
-- 數據庫腳本: `/home/ubuntu/mall-source/document/sql/mall.sql`
+| 項目 | 路徑 |
+|------|------|
+| 後端 | `/home/ubuntu/entertainment-mall/` |
+| 後台前端 | `/home/ubuntu/ent-mall-admin-web/` |
+| 數據庫腳本 | `/home/ubuntu/entertainment-mall/document/sql/mall.sql` |
 
-### 開發計劃
-開發時將 fork general-mall 倉庫，建立獨立的 entertainment-mall 系列倉庫。
+### 部署隔離（與 general-mall 分離）
+| 資源 | 娛樂城商城 | 支付商城 |
+|------|-----------|---------|
+| Admin Port | 8090 | 8080 |
+| Portal Port | 8095 | 8085 |
+| MySQL DB | `ent_mall` | `mall` |
+| Redis Prefix | `ent:` | `mall:` |
+| Docker 前綴 | `ent-*` | `mall-*` |

@@ -106,6 +106,31 @@ private static final int MAX_QTY_PER_ROUND = 12;
 
 ---
 
+## Redis 緩存
+
+商品列表使用 Redis 緩存以提升效能。
+
+| 項目 | 值 |
+|------|-----|
+| Key | `auto_order:products` |
+| TTL | 600 秒（10 分鐘） |
+| 配置項 | `auto-order.cache.expire` |
+
+### 清除緩存
+
+產品更新時可調用：
+```java
+autoOrderService.clearProductCache();
+```
+
+或直接用 Redis 命令：
+```bash
+docker exec mall-redis redis-cli DEL auto_order:products
+```
+
+---
+
 ## 更新日誌
 
+- **2026-02-11**: 新增 Redis 緩存（TTL 10 分鐘）
 - **2026-02-11**: 建立規則文檔

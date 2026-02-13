@@ -110,6 +110,18 @@ Sub 完成後：
 - **正式環境**: 待定義（上線時會指定機器/域名/port）
 - 若無法區分環境，**一律當作正式環境**，先問再做
 
+## 部署後必做檢查 ✅
+
+### 每次 Build + Deploy 後：
+1. **Health check**: `curl -f http://localhost:{port}/actuator/health`
+2. **API 冒煙測試**: 至少打一個核心 API 確認回應正常
+3. **日誌檢查**: `docker logs {container} --tail 10` 確認無 ERROR
+
+### 改 YAML 配置後：
+1. **縮排驗證**: 用 python3 yaml.safe_load 確認結構正確
+2. **關鍵路徑檢查**: spring.redis.host, spring.rabbitmq.host, spring.datasource.url
+3. **踩過的坑**: 移除某段配置後，相鄰配置的縮排可能壞掉（2026-02-13 Redis 事件）
+
 ## Skills
 - `skills/general-mall/` — 通用商城
 - `skills/entertainment-mall/` — 娛樂城商城

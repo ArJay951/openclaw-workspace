@@ -68,5 +68,17 @@
 - general-mall: ~/.openclaw/workspace/skills/general-mall/
 - entertainment-mall: ~/.openclaw/workspace/skills/entertainment-mall/
 
+## 7-11 門市資料
+- 表: `store_711` (mall DB), 7,316 筆
+- 來源: emap.pcsc.com.tw API
+- 備份: `/home/ubuntu/7eleven-scraper/stores.json`
+
+## 代付退貨架構（最新）
+- **一筆 return_apply per 代付**（不再拆分多筆）
+- 多商品明細存 `product_attr` JSON 欄位
+- `returnAmount` = 目標金額
+- 前端 orderId===0 解析 JSON 顯示商品列表
+- `relatedProducts` 已廢棄
+
 ---
-*Last updated: 2026-02-12*
+*Last updated: 2026-02-13*

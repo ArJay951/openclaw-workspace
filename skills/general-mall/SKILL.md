@@ -115,10 +115,13 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 ## ⚠️ 踩坑記錄（Sub-agent 必讀）
 
-### MyBatis 駝峰映射
-- **本專案沒有開 `mapUnderscoreToCamelCase`**
-- 所有 `@Select` 的 underscore 欄位必須手動 alias：`fc.store_id as storeId`
-- 用 `fc.*` 不會自動映射 `store_id` → `storeId`
+### MyBatis Mapper 規範
+- **本專案統一使用 XML Mapper**（不用 `@Select`/`@Insert` 注解）
+- XML 放在 `mall-mbg/src/main/resources/com/macro/mall/mapper/`
+- 每個 Mapper 都要有 `resultMap` 明確定義欄位映射
+- JOIN 查詢用 `extends="BaseResultMap"` 擴展（參考 `OmsFakeContactMapper.xml` 的 `WithStoreResultMap`）
+- **禁止用 `@Select("SELECT * ...")` + 依賴駝峰映射**（本專案沒開 `mapUnderscoreToCamelCase`）
+- 2026-02-14：已將 OmsOrderSource/OmsOrderSourceDevice/OmsFakeContact 三個 Mapper 從注解改為 XML
 
 ### YAML 配置
 - 刪除 YAML 段落後，**檢查相鄰配置的縮排是否壞掉**

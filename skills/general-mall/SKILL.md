@@ -78,41 +78,27 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 ### 新增功能：自動產生訂單 API ✅
 
-提供 API 讓下游系統傳入金額，自動組合商品產生訂單。
+提供 API 讓站台傳入金額，自動組合商品產生訂單。
 
-**API 端點：**
-- 代收: `POST /portal/order/auto-generate/collect`
-- 代付: `POST /portal/order/auto-generate/pay`
+- **代收**: `POST /order/auto-generate/collect` → 購買訂單（status=3 已完成）
+- **代付**: `POST /order/auto-generate/pay` → 退貨申請（orderId=0，一筆 return_apply）
+- **認證**: API Token（X-Api-Token header）+ 員工/設備驗證
+- **假人+門市**: 自動帶入台灣假人姓名電話 + 7-11 門市地址
+- **可選參數**: phone, address, remark, notes
 
-**功能特點：**
-- 代收（collect）：產生購買訂單（已支付狀態）
-- 代付（pay）：產生退貨訂單
-- **訂單金額 = 傳入金額**（固定）
-- IP 白名單驗證
+詳見：[自動產生訂單 API](references/auto-order-api.md)
 
-**訂單規則：** （通用，適用所有商城）
-- ✅ 商品多樣性（至少 3 種以上）
-- ✅ 每商品每輪 7~12 件限制
-- ✅ 折扣 ≤ 最低價商品
-- ✅ Redis 緩存（TTL 10 分鐘）
+### 站台帳號系統 ✅
 
-詳見：
-- [自動產生訂單 API](references/auto-order-api.md)
-- [📋 訂單創建規則（通用）](references/order-rules.md)
+- 每個站台有獨立 admin 帳號（用戶指定 username/password）
+- 站台角色：只能看訂單+退貨申請，且只看自己站台的資料
+- `oms_order_source.name` UNIQUE 約束
 
-### 待開發功能：代付訂單 → 退款申請
+### 導出 Excel ✅
 
-**狀態**: 🟡 待確認需求
-
-代付訂單建立後，自動產生 `oms_order_return_apply` 記錄，供後台審核出款。
-
-**待確認項目**：
-1. Return Apply 記錄內容（總金額 or 拆分商品）
-2. 商品分配邏輯（貪婪法？）
-3. 狀態流程（0=待審核 → ?）
-4. 與代收訂單的關聯方式
-
-詳見：[待開發功能](references/pending-features.md)
+- 訂單列表: `/order/exportExcel`
+- 退貨申請: `/returnApply/exportExcel`
+- 驗證：至少一個篩選條件 + 日期區間 ≤ 31 天
 
 ## 多租戶配置
 
@@ -126,6 +112,53 @@ description: 通用商城系統開發指南。基於 macrozheng/mall 框架，�
 
 - **測試機**: 單機 Docker 全包
 - **正式機**: EC2 + RDS (Multi-AZ) + ALB
+
+## ⚠️ 踩坑記錄（Sub-agent 必讀）
+
+### MyBatis 駝峰映射
+- **本專案沒有開 `mapUnderscoreToCamelCase`**
+- 所有 `@Select` 的 underscore 欄位必須手動 alias：`fc.store_id as storeId`
+- 用 `fc.*` 不會自動映射 `store_id` → `storeId`
+
+### YAML 配置
+- 刪除 YAML 段落後，**檢查相鄰配置的縮排是否壞掉**
+- 改完後用 `python3 -c "import yaml; yaml.safe_load(open('xxx.yml'))"` 驗證
+- 關鍵路徑：`spring.redis.host`, `spring.rabbitmq.host`, `spring.datasource.url`
+- 2026-02-13 事件：移除 MongoDB 段落後 Redis 縮排壞掉 → portal 503
+
+### Docker 部署
+- Jar 是 COPY 進 image 的（非 volume mount），改 code 要重建 image
+- 每次部署後必做：health check → API 冒煙測試 → 日誌檢查
+- Dockerfile 模板：`/tmp/Dockerfile-portal`, `/tmp/Dockerfile-admin`
+
+### Redis 緩存
+- 改角色權限後必須清 Redis：`DEL mall:ums:admin:{username}` + `mall:ums:resourceList:{roleId}`
+- 或直接 `FLUSHALL`（dev 環境）
+
+### poi-ooxml 版本
+- 使用 **4.1.2**，5.2.5 與 commons-compress 衝突
+
+### Lombok
+- Model/DTO 類用 Lombok（`@Data` 等），不手寫 getter/setter
+
+## 導出 Excel 模式
+
+兩個導出 API（訂單 + 退貨申請）用相同模式：
+
+```java
+// 1. 驗證：至少一個篩選條件 + 日期區間 ≤ 31 天
+// 2. 查詢：listAll() 不用 PageHelper
+// 3. 寫 Excel：hutool ExcelUtil.getWriter(true) + addHeaderAlias + write
+// 4. wrapText：商品明細欄 CellStyle.setWrapText(true)
+// 5. 回傳：Content-Type xlsx + Content-Disposition attachment
+```
+
+前端：
+```js
+// axios 設 responseType: 'blob'
+// request.js interceptor 判斷 response.config.responseType === 'blob' 回傳 raw response
+// URL.createObjectURL + <a> download
+```
 
 ## 參考文件
 
